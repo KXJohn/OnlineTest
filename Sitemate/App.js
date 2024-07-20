@@ -20,9 +20,10 @@ const renderItem = ({ item, index }) => {
 };
 
 export default function App() {
-  const [searchText, setSearchText] = useState('tesla');
+  const [searchText, setSearchText] = useState('');
   const [result, setResult] = useState([]);
   const [isLoading, setLoading] = useState(false);
+  const [isSearchError, setIsSearchError] = useState({isError: false, error: unknow });
 
   const onPress = async () => {
     const searchUrl = `${BASE_URL}q=${searchText}&from=2024-06-20&sortBy=publishedAt&apiKey=${API_KEY}`;
@@ -33,11 +34,16 @@ export default function App() {
       await AsyncStorage.setItem('searchResult', json.articles);
       setResult(json.articles);
     } catch (error) {
+      setIsSearchError({isError: true, error});
       console.error(error);
     } finally {
       setLoading(false);
     }
   };
+
+  if(isSearchError){
+    return <Text>{isSearchError.error}</Text>
+  }
 
   return (
     <View style={styles.container}>
