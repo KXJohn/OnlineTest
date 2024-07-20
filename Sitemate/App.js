@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { FlatList, TextInput, View, StyleSheet, Button, Text, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setItem } from './asyncstorage';
 
 
 const API_KEY = '479dc08a1d384091b59557f2d9c3dd23';
@@ -28,6 +30,7 @@ export default function App() {
     try {
       const response = await fetch(searchUrl);
       const json = await response.json();
+      await AsyncStorage.setItem('searchResult', json.articles);
       setResult(json.articles);
     } catch (error) {
       console.error(error);
