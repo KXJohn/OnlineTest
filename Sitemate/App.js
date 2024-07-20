@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-import { FlatList, TextInput, View, StyleSheet, Button, Text } from 'react-native';
+import { useState } from 'react';
+import { FlatList, TextInput, View, StyleSheet, Button, Text, ActivityIndicator } from 'react-native';
 
 
 const API_KEY = '479dc08a1d384091b59557f2d9c3dd23';
@@ -7,17 +7,28 @@ const BASE_URL = 'https://newsapi.org/v2/everything?';
 
 const keyExtractor = (item) => item.url;
 
+const renderItem = ({ item, index }) => {
+  return (
+      <View style={styles.itemContainer}>
+        <Text numberOfLines={2} ellipsizeMode='tail' style={styles.title}>{index} Title: {item.title}</Text>
+        <Text style={styles.title}> Author: {item.author} </Text>
+        <Text numberOfLines={1} ellipsizeMode='tail'> Content : {item.content}</Text>
+      </View>
+      );
+};
+
 export default function App() {
   const [searchText, setSearchText] = useState('tesla');
   const [result, setResult] = useState([]);
+  const [isLoading, setLoading] = useState(false);
 
   const onPress = async () => {
     const searchUrl = `${BASE_URL}q=${searchText}&from=2024-06-20&sortBy=publishedAt&apiKey=${API_KEY}`;
+    setLoading(true);
     try {
       const response = await fetch(searchUrl);
       const json = await response.json();
       setResult(json.articles);
-      console.log("json", json);
     } catch (error) {
       console.error(error);
     } finally {
@@ -25,16 +36,6 @@ export default function App() {
     }
   };
 
-  const renderItem = ({ item, index }) => {
-    return (
-        <View style={styles.itemContainer}>
-          <Text numberOfLines={2} ellipsizeMode='tail' style={styles.title}>{index} Title: {item.title}</Text>
-          <Text style={styles.title}> Author: {item.author} </Text>
-          <Text numberOfLines={1} ellipsizeMode='tail'> Content : {item.content}</Text>
-        </View>
-        );
-  };
-  
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
@@ -49,7 +50,11 @@ export default function App() {
         />
       </View>
       <Text style={styles.title}> Count: {result.length} </Text>
-      <FlatList data={result} renderItem={renderItem} keyExtractor={keyExtractor} />
+      {isLoading ? (
+        <ActivityIndicator />
+      ) : (
+        <FlatList data={result} renderItem={renderItem} keyExtractor={keyExtractor} /> 
+      )}
     </View>
   );
 }
